@@ -9,16 +9,18 @@ import { questions } from './data/questions';
 import { calculateResult } from './lib/scoring';
 import { Character } from './types';
 import { cn } from './lib/utils';
-import { ArrowRight, RotateCcw } from 'lucide-react';
+import { ArrowRight, RotateCcw, Map as MapIcon } from 'lucide-react';
+import DevelopersMap from './components/DevelopersMap';
 import { CharacterImage } from './components/CharacterImage';
 
-type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT';
+type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT' | 'DEV_MAP';
 
 export default function App() {
   const [screen, setScreen] = useState<ScreenState>('WELCOME');
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<Character | null>(null);
+  const [showToast, setShowToast] = useState(false);
 
   const startQuiz = () => {
     setScreen('QUIZ');
@@ -42,6 +44,14 @@ export default function App() {
 
   const currentQ = questions[currentQIndex];
   const progress = ((currentQIndex + 1) / questions.length) * 100;
+
+  const handleShare = () => {
+    navigator.clipboard.writeText("https://lesti.pages.dev/");
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
 
   return (
     <div className="min-h-screen bg-[#EBE8E1] text-[#1D1D1F] font-sans selection:bg-[#1D1D1F] selection:text-[#EBE8E1] flex justify-center relative overflow-hidden">
@@ -77,7 +87,7 @@ export default function App() {
                 <div className="mt-auto">
                   <button 
                     onClick={startQuiz}
-                    className="group relative inline-flex items-center justify-center gap-6 overflow-hidden bg-[#111] px-8 py-5 w-full text-[11px] font-sans text-[#F3F1EB] uppercase tracking-[0.3em] transition-all hover:bg-black active:bg-black active:duration-75 active:scale-[0.98]"
+                    className="group relative inline-flex items-center justify-center gap-6 overflow-hidden bg-[#111] px-8 py-5 w-full text-[11px] font-sans text-[#F3F1EB] uppercase tracking-[0.3em] transition-all hover:bg-black active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center gap-4">
                       Unveil The Answer
@@ -87,6 +97,27 @@ export default function App() {
                 </div>
               </div>
             </motion.div>
+          )}
+
+          {screen === 'DEV_MAP' && (
+             <motion.div
+               key="devmap"
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               className="flex-1 flex flex-col bg-[#E5E7EB]"
+             >
+                <div className="p-4 bg-[#1D1D1F] text-white flex justify-between items-center shadow-md z-10">
+                   <h2 className="text-xs uppercase tracking-widest font-bold">Characters Distribution</h2>
+                   <button 
+                     onClick={() => setScreen('WELCOME')}
+                     className="text-[10px] uppercase tracking-widest border border-white/30 px-3 py-1 hover:bg-white/10"
+                   >
+                     Close
+                   </button>
+                </div>
+                <DevelopersMap />
+             </motion.div>
           )}
 
           {screen === 'QUIZ' && (
@@ -130,7 +161,7 @@ export default function App() {
                         <button
                           key={idx}
                           onClick={() => handleAnswer(idx)}
-                          className="w-full text-left p-5 sm:p-6 border border-[#D1CEC5] hover:border-[#111] active:border-[#111] bg-white/40 hover:bg-[#111] active:bg-[#111] text-sm text-[#4A4946] hover:text-[#F3F1EB] active:text-[#F3F1EB] transition-all duration-300 active:duration-75 ease-out font-serif tracking-wide block relative overflow-hidden group active:scale-[0.99]"
+                          className="w-full text-left p-5 sm:p-6 border border-[#D1CEC5] hover:border-[#111] active:border-[#111] bg-white/40 hover:bg-[#111] active:bg-[#111] text-sm text-[#4A4946] hover:text-[#F3F1EB] active:text-[#F3F1EB] transition-all duration-300 ease-out font-serif tracking-wide block relative overflow-hidden group active:scale-[0.98]"
                         >
                           <span className="relative z-10">{option.text}</span>
                         </button>
@@ -152,6 +183,19 @@ export default function App() {
             >
               <div className="p-8 pb-24 relative">
                 <div className="absolute right-2 top-16 text-[80px] font-serif italic text-[#E8E6DF] select-none z-0 writing-vertical-lr tracking-tighter mix-blend-multiply opacity-60">PROFILE</div>
+
+                <AnimatePresence>
+                  {showToast && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -20, x: '-50%' }}
+                      animate={{ opacity: 1, y: 0, x: '-50%' }}
+                      exit={{ opacity: 0, y: -20, x: '-50%' }}
+                      className="fixed top-8 left-1/2 z-50 bg-[#111] text-[#F3F1EB] px-6 py-3 rounded-full text-xs font-sans tracking-widest uppercase shadow-2xl whitespace-nowrap"
+                    >
+                      网址已复制，去粘贴分享吧
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <div className="relative z-10">
                   <p className="text-[10px] font-sans font-medium tracking-[0.4em] text-[#8C8B88] uppercase mb-6 mt-8">Matching Result</p>
@@ -200,11 +244,14 @@ export default function App() {
               <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-[#F3F1EB]/90 backdrop-blur-md border-t border-[#D1CEC5] p-5 flex gap-4">
                 <button 
                   onClick={() => setScreen('WELCOME')}
-                  className="flex-1 flex items-center justify-center gap-3 bg-[#111] text-[#F3F1EB] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-black active:bg-black active:duration-75 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-3 bg-[#111] text-[#F3F1EB] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-black transition-colors"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> Restart
                 </button>
-                <button className="flex-1 bg-transparent border border-[#111] text-[#111] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-[#E8E6DF] active:bg-[#E8E6DF] active:duration-75 transition-colors">
+                <button 
+                  onClick={handleShare}
+                  className="flex-1 bg-transparent border border-[#111] text-[#111] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-[#E8E6DF] active:bg-[#E8E6DF] transition-colors"
+                >
                   Share
                 </button>
               </div>

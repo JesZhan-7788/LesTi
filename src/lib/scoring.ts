@@ -18,26 +18,18 @@ export function calculateResult(answers: Record<string, number>): Character {
     }
   });
 
-  // 2. Dynamic Normalization -> Map raw scores to [-1, 1] based on theoretical max/min
-  const maxPossible: Record<Dimension, number> = { burn: 0, boundary: 0, give: 0, speak: 0 };
-  
-  questions.filter(q => !q.isKeyQuestion).forEach(q => {
-    // For each dimension, find the maximum absolute effect this question could have
-    (Object.keys(maxPossible) as Dimension[]).forEach(dim => {
-      let maxAbs = 0;
-      q.options.forEach(opt => {
-         const val = Math.abs(opt.effects[dim] || 0);
-         if (val > maxAbs) maxAbs = val;
-      });
-      maxPossible[dim] += maxAbs;
-    });
-  });
+  // 2. Statistical Z-Score Normalization
+  // Pre-calculated from test option distributions to perfectly center the results
+  // and spread them according to the standard deviation of possible answers.
+  const means = { burn: 0, boundary: 1.5, give: 1.75, speak: -1.75 };
+  const stdDevs = { burn: 3.464, boundary: 3.041, give: 2.537, speak: 3.527 };
+  const SCALE = 0.65;
 
   const normalizedScores: Record<Dimension, number> = {
-    burn: maxPossible.burn > 0 ? rawScores.burn / maxPossible.burn : 0,
-    boundary: maxPossible.boundary > 0 ? rawScores.boundary / maxPossible.boundary : 0,
-    give: maxPossible.give > 0 ? rawScores.give / maxPossible.give : 0,
-    speak: maxPossible.speak > 0 ? rawScores.speak / maxPossible.speak : 0,
+    burn: ((rawScores.burn - means.burn) / stdDevs.burn) * SCALE,
+    boundary: ((rawScores.boundary - means.boundary) / stdDevs.boundary) * SCALE,
+    give: ((rawScores.give - means.give) / stdDevs.give) * SCALE,
+    speak: ((rawScores.speak - means.speak) / stdDevs.speak) * SCALE,
   };
 
   // 3. Find the closest character using Euclidean Distance
@@ -50,8 +42,8 @@ export function calculateResult(answers: Record<string, number>): Character {
     const dBoundary = normalizedScores.boundary - char.coords.boundary;
     const dGive = normalizedScores.give - char.coords.give;
     const dSpeak = normalizedScores.speak - char.coords.speak;
-    
-    const distance = Math.sqrt(dBurn*dBurn + dBoundary*dBoundary + dGive*dGive + dSpeak*dSpeak);
+
+    const distance = Math.sqrt(dBurn**2 + dBoundary**2 + dGive**2 + dSpeak**2);
     
     if (Math.abs(distance - minDistance) < 0.001) {
       ties.push(char);

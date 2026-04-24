@@ -1,6 +1,6 @@
 {
-  "name": "LesTI-User",
-  "description": "看不到dev map",
+  "name": "LesTI V2.0",
+  "description": "改了算法，隐藏开发者模式",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }
