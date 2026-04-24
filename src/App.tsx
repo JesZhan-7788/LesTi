@@ -77,7 +77,7 @@ export default function App() {
                 <div className="mt-auto">
                   <button 
                     onClick={startQuiz}
-                    className="group relative inline-flex items-center justify-center gap-6 overflow-hidden bg-[#111] px-8 py-5 w-full text-[11px] font-sans text-[#F3F1EB] uppercase tracking-[0.3em] transition-all hover:bg-black active:scale-[0.98]"
+                    className="group relative inline-flex items-center justify-center gap-6 overflow-hidden bg-[#111] px-8 py-5 w-full text-[11px] font-sans text-[#F3F1EB] uppercase tracking-[0.3em] transition-all hover:bg-black active:bg-black active:duration-75 active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center gap-4">
                       Unveil The Answer
@@ -130,7 +130,7 @@ export default function App() {
                         <button
                           key={idx}
                           onClick={() => handleAnswer(idx)}
-                          className="w-full text-left p-5 sm:p-6 border border-[#D1CEC5] hover:border-[#111] bg-white/40 hover:bg-[#111] text-sm text-[#4A4946] hover:text-[#F3F1EB] transition-all duration-300 ease-out font-serif tracking-wide block relative overflow-hidden group"
+                          className="w-full text-left p-5 sm:p-6 border border-[#D1CEC5] hover:border-[#111] active:border-[#111] bg-white/40 hover:bg-[#111] active:bg-[#111] text-sm text-[#4A4946] hover:text-[#F3F1EB] active:text-[#F3F1EB] transition-all duration-300 active:duration-75 ease-out font-serif tracking-wide block relative overflow-hidden group active:scale-[0.99]"
                         >
                           <span className="relative z-10">{option.text}</span>
                         </button>
@@ -200,11 +200,11 @@ export default function App() {
               <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-[#F3F1EB]/90 backdrop-blur-md border-t border-[#D1CEC5] p-5 flex gap-4">
                 <button 
                   onClick={() => setScreen('WELCOME')}
-                  className="flex-1 flex items-center justify-center gap-3 bg-[#111] text-[#F3F1EB] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-black transition-colors"
+                  className="flex-1 flex items-center justify-center gap-3 bg-[#111] text-[#F3F1EB] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-black active:bg-black active:duration-75 transition-colors"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> Restart
                 </button>
-                <button className="flex-1 bg-transparent border border-[#111] text-[#111] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-[#E8E6DF] transition-colors">
+                <button className="flex-1 bg-transparent border border-[#111] text-[#111] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-[#E8E6DF] active:bg-[#E8E6DF] active:duration-75 transition-colors">
                   Share
                 </button>
               </div>
