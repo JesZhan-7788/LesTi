@@ -7,7 +7,7 @@ export interface Character {
   whisper: string;
   quote?: {
     original: string;
-    translation: string;
+    translation?: string;
   };
   imageUrl?: string;
   coords: {

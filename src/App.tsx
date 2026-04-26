@@ -16,6 +16,9 @@ import { CharacterImage } from './components/CharacterImage';
 
 type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT' | 'DEV_MAP';
 
+const prefetchedResultBackgrounds = new Set<string>();
+const resultBackgroundHref = (id: string) => `/images/${id}-bg.jpg`;
+
 export default function App() {
   const previewParams = new URLSearchParams(window.location.search);
   const previewCharacterId = previewParams.get('preview');
@@ -54,7 +57,7 @@ export default function App() {
   useEffect(() => {
     if (!result || hideBackground) return;
 
-    const href = `/images/${result.id}-bg.jpg`;
+    const href = resultBackgroundHref(result.id);
     const preloadLink = document.createElement('link');
     preloadLink.rel = 'preload';
     preloadLink.as = 'image';
@@ -73,6 +76,40 @@ export default function App() {
     };
   }, [hideBackground, result]);
 
+  useEffect(() => {
+    if (hideBackground || screen === 'DEV_MAP') return;
+
+    const resultIds = characters.map((character) => character.id);
+    let timeoutId: number | undefined;
+    let index = 0;
+
+    const prefetchNext = () => {
+      const id = resultIds[index];
+      index += 1;
+
+      if (!id) return;
+      if (!prefetchedResultBackgrounds.has(id)) {
+        const href = resultBackgroundHref(id);
+        const img = new Image();
+        img.decoding = 'async';
+        img.loading = 'lazy';
+        img.setAttribute('fetchpriority', 'low');
+        img.src = href;
+        prefetchedResultBackgrounds.add(id);
+      }
+
+      timeoutId = window.setTimeout(prefetchNext, 140);
+    };
+
+    timeoutId = window.setTimeout(prefetchNext, screen === 'QUIZ' ? 250 : 1800);
+
+    return () => {
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [hideBackground, screen]);
+
   const handleShare = () => {
     navigator.clipboard.writeText("https://lesti.pages.dev/");
     setShowToast(true);
@@ -82,7 +119,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EBE8E1] text-[#1D1D1F] font-sans selection:bg-[#1D1D1F] selection:text-[#EBE8E1] flex justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-[#F3F1EB] text-[#1D1D1F] font-sans selection:bg-[#1D1D1F] selection:text-[#F3F1EB] flex justify-center relative overflow-hidden">
       <div className="noise-overlay hidden sm:block"></div>
       <div className="w-full max-w-[480px] min-h-screen relative overflow-hidden flex flex-col bg-[#F3F1EB] shadow-[0_0_60px_rgba(0,0,0,0.05)] border-x border-[#E2E0D8]">
         <div className="noise-overlay"></div>
@@ -94,31 +131,34 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="flex-1 flex flex-col p-8 relative"
+              className="relative flex-1 overflow-hidden bg-[#F3F1EB]"
             >
-              <div className="absolute left-[-2px] sm:left-4 top-24 text-[110px] sm:text-[120px] font-serif italic text-[#E8E6DF] select-none z-0 tracking-tighter opacity-80 mix-blend-multiply">LESTI</div>
-              
-              <div className="z-10 relative flex flex-col h-full justify-between pt-16 pb-8">
-                <div>
-                  <p className="text-[10px] font-sans font-medium tracking-[0.4em] text-[#8C8B88] uppercase mb-8">Designed for Her</p>
-                  <h1 className="text-[4rem] sm:text-[4.5rem] leading-[1] font-serif font-light mb-8 text-[#111] tracking-tight italic">
+              <img
+                src="/images/home-bg.jpg"
+                alt=""
+                className="absolute inset-0 z-0 h-full w-full object-cover object-center"
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
+              />
+
+              <div className="relative z-10 flex h-full flex-col px-8 py-10">
+                <div className="flex flex-1 flex-col items-center justify-center text-center">
+                  <h1 className="mb-6 text-[4rem] sm:text-[4.5rem] leading-[1] font-serif font-light text-[#111] tracking-tight italic">
                     LesTi
                   </h1>
-                  <div className="w-10 h-[1px] bg-[#111] mb-10 text-opacity-80"></div>
-                  <p className="text-[14px] text-[#4A4946] leading-[2.2] max-w-[280px] font-serif tracking-wide font-light">
-                    剥开潜意识的伪装，<br/>
-                    触摸你真实的轮廓。<br/>
-                    在27场光影的碎片里，<br/>
-                    认领那个隐匿的自己。
+                  <p className="text-[10px] font-sans font-medium leading-[1.8] tracking-[0.24em] text-[#8C8B88] uppercase">
+                    FOR THE ONES<br />
+                    WHO LOVE WOMEN
                   </p>
                 </div>
-                <div className="mt-auto">
+                <div className="pb-40">
                   <button 
                     onClick={startQuiz}
-                    className="group relative inline-flex items-center justify-center gap-6 overflow-hidden bg-[#111] px-8 py-5 w-full text-[11px] font-sans text-[#F3F1EB] uppercase tracking-[0.3em] transition-all hover:bg-black active:scale-[0.98]"
+                    className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 w-full text-[11px] font-sans text-[#4A4946] uppercase tracking-[0.3em] transition-all hover:text-[#111] active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center gap-4">
-                      Unveil The Answer
+                      UNVEIL
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500 ease-out" />
                     </span>
                   </button>
@@ -155,9 +195,18 @@ export default function App() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="flex-1 flex flex-col pt-16 pb-12 px-8 bg-[#F3F1EB] relative"
+              className="relative flex-1 overflow-hidden bg-[#F3F1EB]"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-[#E8E6DF]">
+              <img
+                src="/images/quiz-bg.jpg"
+                alt=""
+                className="absolute inset-0 z-0 h-full w-full object-cover object-center"
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
+              />
+
+              <div className="absolute top-0 left-0 right-0 z-10 h-1 bg-[#E8E6DF]">
                 <motion.div 
                   className="h-full bg-[#111]"
                   initial={{ width: 0 }}
@@ -166,6 +215,7 @@ export default function App() {
                 />
               </div>
 
+              <div className="relative z-10 flex h-full flex-col justify-center px-8 py-16">
               <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -197,6 +247,7 @@ export default function App() {
                     </div>
                   </motion.div>
                 </AnimatePresence>
+              </div>
               </div>
             </motion.div>
           )}
@@ -254,12 +305,19 @@ export default function App() {
                     {result.quote && (
                       <div className="mb-8">
                         <blockquote className="border-l-[3px] border-[#111] pl-5">
-                          <p className="text-[22px] sm:text-[26px] font-serif italic text-[#111] leading-[1.55] mb-3">
+                          <p className={cn(
+                            "text-[#111] leading-[1.55] mb-3",
+                            result.quote.translation
+                              ? "text-[22px] sm:text-[26px] font-serif italic"
+                              : "text-[22px] sm:text-[26px] font-serif-sc font-normal not-italic tracking-[0.03em]"
+                          )}>
                             {result.quote.original}
                           </p>
-                          <p className="text-[15px] text-[#7A7771] font-serif leading-[1.95]">
-                            {result.quote.translation}
-                          </p>
+                          {result.quote.translation && (
+                            <p className="text-[15px] text-[#7A7771] font-serif leading-[1.95]">
+                              {result.quote.translation}
+                            </p>
+                          )}
                         </blockquote>
                       </div>
                     )}
