@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { questions } from './data/questions';
 import { characters } from './data/characters';
@@ -50,6 +50,28 @@ export default function App() {
   const currentQ = questions[currentQIndex];
   const progress = ((currentQIndex + 1) / questions.length) * 100;
   const displayWork = result?.work === '历史真实人物' || result?.work.startsWith('《') ? result.work : `《${result?.work}》`;
+
+  useEffect(() => {
+    if (!result || hideBackground) return;
+
+    const href = `/images/${result.id}-bg.jpg`;
+    const preloadLink = document.createElement('link');
+    preloadLink.rel = 'preload';
+    preloadLink.as = 'image';
+    preloadLink.href = href;
+    document.head.appendChild(preloadLink);
+
+    const img = new Image();
+    img.decoding = 'async';
+    img.setAttribute('fetchpriority', 'high');
+    img.src = href;
+
+    return () => {
+      if (document.head.contains(preloadLink)) {
+        document.head.removeChild(preloadLink);
+      }
+    };
+  }, [hideBackground, result]);
 
   const handleShare = () => {
     navigator.clipboard.writeText("https://lesti.pages.dev/");
@@ -198,6 +220,9 @@ export default function App() {
                       result.id === 'tina' && "scale-90",
                       result.id === 'yuhuan' && "scale-[0.94]"
                     )}
+                    loading="eager"
+                    decoding="sync"
+                    fetchPriority="high"
                   />
                   <div className="absolute inset-x-0 bottom-0 h-[54%] bg-gradient-to-t from-[#F3F1EB]/78 via-[#F3F1EB]/38 to-transparent" />
                 </div>
