@@ -9,11 +9,12 @@ import { questions } from './data/questions';
 import { calculateResult } from './lib/scoring';
 import { Character } from './types';
 import { cn } from './lib/utils';
-import { ArrowRight, RotateCcw, Map as MapIcon } from 'lucide-react';
+import { ArrowRight, RotateCcw, Map as MapIcon, Eye } from 'lucide-react';
 import DevelopersMap from './components/DevelopersMap';
 import { CharacterImage } from './components/CharacterImage';
+import { characters } from './data/characters';
 
-type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT' | 'DEV_MAP';
+type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT' | 'DEV_MAP' | 'GALLERY';
 
 export default function App() {
   const [screen, setScreen] = useState<ScreenState>('WELCOME');
@@ -68,6 +69,21 @@ export default function App() {
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="flex-1 flex flex-col p-8 relative"
             >
+              <div className="absolute top-6 right-6 z-50 flex gap-2">
+                <button 
+                  onClick={() => setScreen('DEV_MAP')}
+                  className="flex items-center gap-2 text-[9px] uppercase font-mono tracking-[0.2em] text-[#8C8B88] hover:text-[#111] transition-colors border border-transparent hover:border-[#D1CEC5] px-3 py-1.5"
+                >
+                  <MapIcon className="w-3 h-3" /> MAP
+                </button>
+                <button 
+                  onClick={() => setScreen('GALLERY')}
+                  className="flex items-center gap-2 text-[9px] uppercase font-mono tracking-[0.2em] text-[#8C8B88] hover:text-[#111] transition-colors border border-transparent hover:border-[#D1CEC5] px-3 py-1.5"
+                >
+                  <Eye className="w-3 h-3" /> PREVIEW
+                </button>
+              </div>
+
               <div className="absolute left-[-2px] sm:left-4 top-24 text-[110px] sm:text-[120px] font-serif italic text-[#E8E6DF] select-none z-0 tracking-tighter opacity-80 mix-blend-multiply">LESTI</div>
               
               <div className="z-10 relative flex flex-col h-full justify-between pt-16 pb-8">
@@ -117,6 +133,44 @@ export default function App() {
                    </button>
                 </div>
                 <DevelopersMap />
+             </motion.div>
+          )}
+
+          {screen === 'GALLERY' && (
+             <motion.div
+               key="gallery"
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               className="flex-1 flex flex-col bg-[#F3F1EB] overflow-y-auto"
+             >
+                <div className="sticky top-0 p-4 bg-[#1D1D1F] text-white flex justify-between items-center shadow-md z-20">
+                   <h2 className="text-xs uppercase tracking-widest font-bold">Result Previews</h2>
+                   <button 
+                     onClick={() => setScreen('WELCOME')}
+                     className="text-[10px] uppercase tracking-widest border border-white/30 px-3 py-1 hover:bg-white/10"
+                   >
+                     Close
+                   </button>
+                </div>
+                <div className="grid grid-cols-2 gap-px bg-[#D1CEC5] p-px">
+                  {characters.map(c => (
+                    <button
+                      key={c.id}
+                      onClick={() => {
+                        setResult(c);
+                        setScreen('RESULT');
+                      }}
+                      className="bg-[#F3F1EB] p-4 text-left hover:bg-[#111] hover:text-[#F3F1EB] transition-colors group aspect-square flex flex-col justify-end relative overflow-hidden"
+                    >
+                      <img src={`/images/${c.id}-bg.png`} className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
+                      <div className="relative z-10">
+                        <p className="text-[9px] uppercase font-mono mb-1 mix-blend-multiply text-[#8C8B88] group-hover:text-white/60">{c.work}</p>
+                        <h3 className="font-serif text-lg leading-tight">{c.name}</h3>
+                      </div>
+                    </button>
+                  ))}
+                </div>
              </motion.div>
           )}
 
@@ -179,81 +233,100 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="flex-1 overflow-y-auto bg-[#F3F1EB]"
+              className="flex-1 flex flex-col relative bg-[#F3F1EB] overflow-hidden"
             >
-              <div className="p-8 pb-24 relative">
-                <div className="absolute right-2 top-16 text-[80px] font-serif italic text-[#E8E6DF] select-none z-0 writing-vertical-lr tracking-tighter mix-blend-multiply opacity-60">PROFILE</div>
+              {/* Background Image Container */}
+              <div 
+                className="absolute inset-0 z-0 pointer-events-none"
+                style={{ 
+                  backgroundImage: `url('/images/${result.id}-bg.png')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center 25%',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              />
 
-                <AnimatePresence>
-                  {showToast && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -20, x: '-50%' }}
-                      animate={{ opacity: 1, y: 0, x: '-50%' }}
-                      exit={{ opacity: 0, y: -20, x: '-50%' }}
-                      className="fixed top-8 left-1/2 z-50 bg-[#111] text-[#F3F1EB] px-6 py-3 rounded-full text-xs font-sans tracking-widest uppercase shadow-2xl whitespace-nowrap"
-                    >
-                      网址已复制，去粘贴分享吧
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              <AnimatePresence>
+                {showToast && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -20, x: '-50%' }}
+                    animate={{ opacity: 1, y: 0, x: '-50%' }}
+                    exit={{ opacity: 0, y: -20, x: '-50%' }}
+                    className="fixed top-8 left-1/2 z-50 bg-[#111] text-[#F3F1EB] px-6 py-3 rounded-full text-xs font-sans tracking-widest uppercase shadow-2xl whitespace-nowrap"
+                  >
+                    网址已复制，去粘贴分享吧
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-                <div className="relative z-10">
-                  <p className="text-[10px] font-sans font-medium tracking-[0.4em] text-[#8C8B88] uppercase mb-6 mt-8">Matching Result</p>
-                  
-                  <div className="relative w-full aspect-[4/5] border-[8px] border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] overflow-hidden bg-[#E8E6DF] mb-10 group">
-                    <CharacterImage
-                      id={result.id}
-                      alt={result.name}
-                      className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-1000 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent z-10 transition-opacity duration-700"></div>
-                    <div className="absolute inset-0 flex items-center justify-center text-[#A19D91] gap-y-2 flex-col italic text-sm -z-10">
-                      <svg className="w-8 h-8 opacity-40 mb-2" fill="none" strokeWidth="1" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      <span className="text-[9px] uppercase font-sans tracking-[0.3em]">[ IMAGE PENDING ]</span>
-                    </div>
-                    <div className="absolute bottom-6 left-6 right-6 text-[#F3F1EB] z-20">
-                      <p className="text-[9px] tracking-[0.3em] font-sans font-medium uppercase opacity-90 mb-3">{result.work}</p>
-                      <h2 className="text-[2.5rem] font-serif font-light leading-none drop-shadow-lg tracking-tight">{result.name}</h2>
-                    </div>
-                  </div>
+              <div className="relative z-10 flex-1 overflow-y-auto px-8 pt-10 pb-[120px] sm:pb-[140px] flex flex-col justify-start">
+                <div className="mb-6">
+                  <p className="text-[12px] text-[#8C8B88] font-serif tracking-widest mb-2 uppercase text-glow-white">
+                    LESTI·你是
+                  </p>
+                  <h2 className="text-[3.5rem] sm:text-[4rem] font-serif leading-[1.1] text-[#111] tracking-tight text-glow-white mb-2">
+                    {result.name}
+                  </h2>
+                  <p className="text-[14px] text-[#8C8B88] font-serif tracking-widest mb-3 uppercase text-glow-white">
+                    《{result.work}》
+                  </p>
+                </div>
 
-                  <div className="mb-10">
-                    <blockquote className="text-xl sm:text-2xl font-serif italic text-[#111] leading-relaxed mb-8 border-l-[3px] border-[#111] pl-5">
-                      {result.whisper}
-                    </blockquote>
-
-                    <div className="flex flex-wrap gap-2 mb-10">
-                      {result.tags.map((tag, i) => (
-                        <span key={i} className="text-[10px] font-sans tracking-widest px-3 py-1.5 border border-[#D1CEC5] text-[#4A4946] uppercase bg-white/40">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    <p className="text-[10px] font-sans font-bold tracking-[0.4em] text-[#8C8B88] uppercase mb-4">Character Analysis</p>
-                    <p className="text-[13px] text-[#4A4946] font-serif leading-[2.2] text-justify tracking-wide">
-                      {result.description}
+                <div className="relative mb-8">
+                  <div className="absolute left-0 top-1 bottom-1 w-[3px] bg-[#111]"></div>
+                  <div className="pl-6 flex flex-col gap-4 py-1 text-glow-white">
+                    <p className="text-[20px] sm:text-[22px] text-[#222] leading-relaxed font-serif italic">
+                      {result.quoteEn || "Lesbians think friendship is another word for foreplay!"}
+                    </p>
+                    <p className="text-[14px] sm:text-[15px] text-[#666] leading-relaxed font-serif">
+                      {result.quoteCn || "女同性恋总把友谊当成前戏的代名词！"}
                     </p>
                   </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 mb-8">
+                  {result.tags.map((tag, idx) => (
+                    <span key={idx} className="text-[12px] tracking-widest font-serif text-[#4A4946] border border-[#D1CEC5] px-4 py-2 bg-[#F3F1EB]/60 shadow-sm backdrop-blur-sm">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <h3 className="text-[13px] font-serif tracking-[0.4em] uppercase text-[#8C8B88] text-glow-white">
+                    ANALYSIS
+                  </h3>
+                  <p className="text-[15px] sm:text-[16px] text-[#333] leading-[2.2] font-serif text-justify text-glow-white">
+                    {result.description}
+                  </p>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <h3 className="text-[13px] font-serif tracking-[0.4em] uppercase text-[#8C8B88] text-glow-white">
+                    TO YOU
+                  </h3>
+                  <p className="text-[15px] sm:text-[16px] text-[#333] leading-[2.2] font-serif text-justify text-glow-white">
+                    {result.whisper}
+                  </p>
                 </div>
               </div>
 
               {/* Floating Footer Toolbar */}
-              <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-[#F3F1EB]/90 backdrop-blur-md border-t border-[#D1CEC5] p-5 flex gap-4">
-                <button 
-                  onClick={() => setScreen('WELCOME')}
-                  className="flex-1 flex items-center justify-center gap-3 bg-[#111] text-[#F3F1EB] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-black transition-colors"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" /> Restart
-                </button>
-                <button 
-                  onClick={handleShare}
-                  className="flex-1 bg-transparent border border-[#111] text-[#111] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-[#E8E6DF] active:bg-[#E8E6DF] transition-colors"
-                >
-                  Share
-                </button>
+              <div className="absolute bottom-0 left-0 right-0 p-6 pb-8 sm:pb-10 z-20 pointer-events-none flex items-end">
+                <div className="w-full max-w-[400px] mx-auto flex gap-4 pointer-events-auto">
+                  <button 
+                    onClick={() => setScreen('WELCOME')}
+                    className="flex-1 flex items-center justify-center gap-3 bg-[#111] text-[#F3F1EB] py-4 text-[11px] uppercase font-serif tracking-[0.3em] hover:bg-black transition-colors group relative overflow-hidden shadow-xl"
+                  >
+                    <RotateCcw className="w-4 h-4 group-hover:-rotate-180 transition-transform duration-500" /> RESTART
+                  </button>
+                  <button 
+                    onClick={handleShare}
+                    className="flex-1 bg-[#F3F1EB]/90 backdrop-blur-md border border-[#111] text-[#111] py-4 text-[11px] uppercase font-serif tracking-[0.3em] hover:bg-[#E8E6DF] active:bg-[#E8E6DF] transition-colors shadow-xl"
+                  >
+                    SHARE
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}

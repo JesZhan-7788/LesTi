@@ -1,6 +1,6 @@
 {
-  "name": "LesTI V2.0",
-  "description": "改了算法，隐藏开发者模式",
+  "name": "LesTI V2.1",
+  "description": "改了算法，隐藏开发者模式；同步github和网页",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }
