@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { questions } from './data/questions';
+import { characters } from './data/characters';
 import { calculateResult } from './lib/scoring';
 import { Character } from './types';
 import { cn } from './lib/utils';
@@ -16,10 +17,14 @@ import { CharacterImage } from './components/CharacterImage';
 type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT' | 'DEV_MAP';
 
 export default function App() {
-  const [screen, setScreen] = useState<ScreenState>('WELCOME');
+  const previewParams = new URLSearchParams(window.location.search);
+  const previewCharacterId = previewParams.get('preview');
+  const hideBackground = previewParams.get('bg') === 'off';
+  const previewCharacter = characters.find((character) => character.id === previewCharacterId) ?? null;
+  const [screen, setScreen] = useState<ScreenState>(previewCharacter ? 'RESULT' : 'WELCOME');
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [result, setResult] = useState<Character | null>(null);
+  const [result, setResult] = useState<Character | null>(previewCharacter);
   const [showToast, setShowToast] = useState(false);
 
   const startQuiz = () => {
@@ -44,6 +49,7 @@ export default function App() {
 
   const currentQ = questions[currentQIndex];
   const progress = ((currentQIndex + 1) / questions.length) * 100;
+  const displayWork = result?.work === '历史真实人物' || result?.work.startsWith('《') ? result.work : `《${result?.work}》`;
 
   const handleShare = () => {
     navigator.clipboard.writeText("https://lesti.pages.dev/");
@@ -179,11 +185,25 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="flex-1 overflow-y-auto bg-[#F3F1EB]"
+              className="relative isolate flex-1 overflow-y-auto bg-[#F3F1EB]"
             >
-              <div className="p-8 pb-24 relative">
-                <div className="absolute right-2 top-16 text-[80px] font-serif italic text-[#E8E6DF] select-none z-0 writing-vertical-lr tracking-tighter mix-blend-multiply opacity-60">PROFILE</div>
+              {!hideBackground && (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                  <CharacterImage
+                    id={`${result.id}-bg`}
+                    alt=""
+                    className={cn(
+                      "h-full w-full object-cover object-center",
+                      result.id === 'marina' && "scale-80",
+                      result.id === 'tina' && "scale-90",
+                      result.id === 'yuhuan' && "scale-[0.94]"
+                    )}
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-[54%] bg-gradient-to-t from-[#F3F1EB]/78 via-[#F3F1EB]/38 to-transparent" />
+                </div>
+              )}
 
+              <div className="relative z-10 min-h-screen p-8 pb-8">
                 <AnimatePresence>
                   {showToast && (
                     <motion.div
@@ -197,32 +217,27 @@ export default function App() {
                   )}
                 </AnimatePresence>
 
-                <div className="relative z-10">
-                  <p className="text-[10px] font-sans font-medium tracking-[0.4em] text-[#8C8B88] uppercase mb-6 mt-8">Matching Result</p>
-                  
-                  <div className="relative w-full aspect-[4/5] border-[8px] border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] overflow-hidden bg-[#E8E6DF] mb-10 group">
-                    <CharacterImage
-                      id={result.id}
-                      alt={result.name}
-                      className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-1000 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent z-10 transition-opacity duration-700"></div>
-                    <div className="absolute inset-0 flex items-center justify-center text-[#A19D91] gap-y-2 flex-col italic text-sm -z-10">
-                      <svg className="w-8 h-8 opacity-40 mb-2" fill="none" strokeWidth="1" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      <span className="text-[9px] uppercase font-sans tracking-[0.3em]">[ IMAGE PENDING ]</span>
-                    </div>
-                    <div className="absolute bottom-6 left-6 right-6 text-[#F3F1EB] z-20">
-                      <p className="text-[9px] tracking-[0.3em] font-sans font-medium uppercase opacity-90 mb-3">{result.work}</p>
-                      <h2 className="text-[2.5rem] font-serif font-light leading-none drop-shadow-lg tracking-tight">{result.name}</h2>
-                    </div>
-                  </div>
+                <div className="relative z-10 flex min-h-[calc(100vh-7rem)] flex-col">
+                  <div className="mt-auto mb-10">
+                    <p className="text-[14px] font-sans font-normal tracking-[0.18em] text-[#8C8B88] mb-3">
+                      <span>LESTI·</span>
+                      <span className="font-bold text-[#111]">你是</span>
+                    </p>
+                    <h2 className="text-[3.4rem] font-serif font-light leading-[0.95] text-[#111] tracking-tight mb-3">{result.name}</h2>
+                    <p className="text-[14px] font-sans font-normal tracking-[0.18em] uppercase text-[#8C8B88] mb-8">{displayWork}</p>
 
-                  <div className="mb-10">
-                    <blockquote className="text-xl sm:text-2xl font-serif italic text-[#111] leading-relaxed mb-8 border-l-[3px] border-[#111] pl-5">
-                      {result.whisper}
-                    </blockquote>
+                    {result.quote && (
+                      <div className="mb-8">
+                        <blockquote className="border-l-[3px] border-[#111] pl-5">
+                          <p className="text-[22px] sm:text-[26px] font-serif italic text-[#111] leading-[1.55] mb-3">
+                            {result.quote.original}
+                          </p>
+                          <p className="text-[15px] text-[#7A7771] font-serif leading-[1.95]">
+                            {result.quote.translation}
+                          </p>
+                        </blockquote>
+                      </div>
+                    )}
 
                     <div className="flex flex-wrap gap-2 mb-10">
                       {result.tags.map((tag, i) => (
@@ -232,16 +247,21 @@ export default function App() {
                       ))}
                     </div>
 
-                    <p className="text-[10px] font-sans font-bold tracking-[0.4em] text-[#8C8B88] uppercase mb-4">Character Analysis</p>
-                    <p className="text-[13px] text-[#4A4946] font-serif leading-[2.2] text-justify tracking-wide">
+                    <p className="text-[10px] font-sans font-bold tracking-[0.4em] text-[#8C8B88] uppercase mb-4">Analysis</p>
+                    <p className="text-[14px] text-[#4A4946] font-serif leading-[2.15] text-justify tracking-wide">
                       {result.description}
+                    </p>
+
+                    <p className="text-[10px] font-sans font-bold tracking-[0.4em] text-[#8C8B88] uppercase mt-10 mb-4">TO YOU</p>
+                    <p className="text-[14px] text-[#4A4946] font-serif leading-[2.15] text-justify tracking-wide">
+                      {result.whisper}
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* Floating Footer Toolbar */}
-              <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-[#F3F1EB]/90 backdrop-blur-md border-t border-[#D1CEC5] p-5 flex gap-4">
+              <div className="sticky bottom-0 z-20 bg-[#F3F1EB]/90 backdrop-blur-md border-t border-[#D1CEC5] p-5 flex gap-4">
                 <button 
                   onClick={() => setScreen('WELCOME')}
                   className="flex-1 flex items-center justify-center gap-3 bg-[#111] text-[#F3F1EB] py-4 text-[10px] uppercase font-sans tracking-[0.3em] hover:bg-black transition-colors"

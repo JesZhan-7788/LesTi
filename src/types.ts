@@ -5,6 +5,10 @@ export interface Character {
   tags: string[];
   description: string;
   whisper: string;
+  quote?: {
+    original: string;
+    translation: string;
+  };
   imageUrl?: string;
   coords: {
     burn: number; // 燃烧(+1) ↔ 克制(-1)
