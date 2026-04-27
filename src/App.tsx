@@ -16,7 +16,20 @@ import { CharacterImage } from './components/CharacterImage';
 type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT';
 
 const prefetchedResultBackgrounds = new Set<string>();
+let quizBackgroundPrimed = false;
 const resultBackgroundHref = (id: string) => `/images/${id}-bg.jpg`;
+const quizBackgroundHref = '/images/quiz-bg.jpg';
+const RESULT_PREFETCH_CONCURRENCY = 6;
+
+const warmImage = (href: string, fetchPriority: 'high' | 'low' | 'auto' = 'auto') =>
+  new Promise<void>((resolve) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.setAttribute('fetchpriority', fetchPriority);
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = href;
+  });
 
 export default function App() {
   const previewParams = new URLSearchParams(window.location.search);
@@ -28,6 +41,8 @@ export default function App() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<Character | null>(previewCharacter);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [homeBackgroundLoaded, setHomeBackgroundLoaded] = useState(false);
+  const [quizBackgroundLoaded, setQuizBackgroundLoaded] = useState(quizBackgroundPrimed);
 
   const startQuiz = () => {
     setScreen('QUIZ');
@@ -76,38 +91,52 @@ export default function App() {
   }, [hideBackground, result]);
 
   useEffect(() => {
-    if (hideBackground || screen !== 'QUIZ') return;
+    if (hideBackground || quizBackgroundLoaded) return;
+    if (!homeBackgroundLoaded && screen !== 'QUIZ') return;
 
-    const resultIds = characters.map((character) => character.id);
-    let timeoutId: number | undefined;
-    let index = 0;
+    let cancelled = false;
 
-    const prefetchNext = () => {
-      const id = resultIds[index];
-      index += 1;
-
-      if (!id) return;
-      if (!prefetchedResultBackgrounds.has(id)) {
-        const href = resultBackgroundHref(id);
-        const img = new Image();
-        img.decoding = 'async';
-        img.loading = 'lazy';
-        img.setAttribute('fetchpriority', 'low');
-        img.src = href;
-        prefetchedResultBackgrounds.add(id);
-      }
-
-      timeoutId = window.setTimeout(prefetchNext, 140);
-    };
-
-    timeoutId = window.setTimeout(prefetchNext, 250);
+    void warmImage(quizBackgroundHref, 'high').then(() => {
+      if (cancelled) return;
+      quizBackgroundPrimed = true;
+      setQuizBackgroundLoaded(true);
+    });
 
     return () => {
-      if (timeoutId !== undefined) {
-        window.clearTimeout(timeoutId);
-      }
+      cancelled = true;
     };
-  }, [hideBackground, screen]);
+  }, [hideBackground, homeBackgroundLoaded, quizBackgroundLoaded, screen]);
+
+  useEffect(() => {
+    if (hideBackground || screen !== 'QUIZ' || !quizBackgroundLoaded) return;
+
+    const queue = characters
+      .map((character) => character.id)
+      .filter((id) => !prefetchedResultBackgrounds.has(id));
+
+    if (!queue.length) return;
+
+    let cancelled = false;
+
+    const workers = Array.from({ length: Math.min(RESULT_PREFETCH_CONCURRENCY, queue.length) }, (_, workerIndex) => {
+      const priority: 'high' | 'auto' = workerIndex < 2 ? 'high' : 'auto';
+
+      return (async () => {
+        while (!cancelled) {
+          const id = queue.shift();
+          if (!id) return;
+          prefetchedResultBackgrounds.add(id);
+          await warmImage(resultBackgroundHref(id), priority);
+        }
+      })();
+    });
+
+    void Promise.allSettled(workers);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hideBackground, quizBackgroundLoaded, screen]);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -188,8 +217,9 @@ export default function App() {
                 alt=""
                 className="absolute inset-0 z-0 h-full w-full object-cover object-center"
                 loading="eager"
-                decoding="sync"
+                decoding="async"
                 fetchPriority="high"
+                onLoad={() => setHomeBackgroundLoaded(true)}
               />
 
               <div className="relative z-10 flex h-full flex-col px-8 py-10">
@@ -231,7 +261,7 @@ export default function App() {
                 alt=""
                 className="absolute inset-0 z-0 h-full w-full object-cover object-center"
                 loading="eager"
-                decoding="sync"
+                decoding="async"
                 fetchPriority="high"
               />
 
