@@ -27,7 +27,7 @@ export default function App() {
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<Character | null>(previewCharacter);
-  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const startQuiz = () => {
     setScreen('QUIZ');
@@ -76,7 +76,7 @@ export default function App() {
   }, [hideBackground, result]);
 
   useEffect(() => {
-    if (hideBackground) return;
+    if (hideBackground || screen !== 'QUIZ') return;
 
     const resultIds = characters.map((character) => character.id);
     let timeoutId: number | undefined;
@@ -100,7 +100,7 @@ export default function App() {
       timeoutId = window.setTimeout(prefetchNext, 140);
     };
 
-    timeoutId = window.setTimeout(prefetchNext, screen === 'QUIZ' ? 250 : 1800);
+    timeoutId = window.setTimeout(prefetchNext, 250);
 
     return () => {
       if (timeoutId !== undefined) {
@@ -109,12 +109,63 @@ export default function App() {
     };
   }, [hideBackground, screen]);
 
-  const handleShare = () => {
-    navigator.clipboard.writeText("https://lesti.pages.dev/");
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    window.setTimeout(() => {
+      setToastMessage(null);
     }, 3000);
+  };
+
+  const fallbackCopyText = (text: string) => {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'absolute';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.select();
+
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return successful;
+  };
+
+  const handleShare = async () => {
+    const shareUrl = "https://lesti.pages.dev/";
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'LESTI',
+          text: '测测你是哪位女同角色',
+          url: shareUrl,
+        });
+        showToast('分享面板已打开');
+        return;
+      }
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        showToast('网址已复制，去粘贴分享吧');
+        return;
+      }
+
+      if (fallbackCopyText(shareUrl)) {
+        showToast('网址已复制，去粘贴分享吧');
+        return;
+      }
+
+      showToast('当前环境不支持自动复制');
+    } catch (error) {
+      if ((error as DOMException | undefined)?.name === 'AbortError') {
+        return;
+      }
+      if (fallbackCopyText(shareUrl)) {
+        showToast('网址已复制，去粘贴分享吧');
+        return;
+      }
+      showToast('复制失败，请手动复制链接');
+    }
   };
 
   return (
@@ -259,14 +310,14 @@ export default function App() {
 
               <div className="relative z-10 min-h-screen p-8 pb-8">
                 <AnimatePresence>
-                  {showToast && (
+                  {toastMessage && (
                     <motion.div
                       initial={{ opacity: 0, y: -20, x: '-50%' }}
                       animate={{ opacity: 1, y: 0, x: '-50%' }}
                       exit={{ opacity: 0, y: -20, x: '-50%' }}
                       className="fixed top-8 left-1/2 z-50 bg-[#111] text-[#F3F1EB] px-6 py-3 rounded-full text-xs font-sans tracking-widest uppercase shadow-2xl whitespace-nowrap"
                     >
-                      网址已复制，去粘贴分享吧
+                      {toastMessage}
                     </motion.div>
                   )}
                 </AnimatePresence>

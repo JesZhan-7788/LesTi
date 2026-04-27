@@ -55,15 +55,14 @@ export function calculateResult(answers: Record<string, number>): Character {
   });
 
   // 4. Tie-breaking logic
-  // According to the document, if we hit the "Tina/Yimin/Wil" bucket (and potentially Pie since she's close),
-  // we use Key Questions.
+  // If we hit the "Tina/Yimin/Wil" bucket, we use Key Questions.
   if (ties.length > 1) {
     // If it's a generic tie, prefer the one with more 0s as specified in the doc
     let bestTie = ties[0];
     let maxZeros = -1;
     
     // Check if the tie involves our special key-question group [-1, -1, -1, -1]
-    const specialIds = ['tina', 'yimin', 'wil', 'pie'];
+    const specialIds = ['tina', 'yimin', 'wil'];
     const hasSpecialTies = ties.some(t => specialIds.includes(t.id));
     
     if (hasSpecialTies) {

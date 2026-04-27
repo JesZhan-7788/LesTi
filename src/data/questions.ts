@@ -238,13 +238,6 @@ export const questions: Question[] = [
     options: createAgreeOptions("boundary", true)
   },
   {
-    id: "kq_pie",
-    isKeyQuestion: true,
-    keyTarget: "pie",
-    text: "我喜欢她，但我偶尔不确定这算不算爱情（或曾有过这种疑惑）。",
-    options: createAgreeOptions("burn", true)
-  },
-  {
     id: "kq_yimin",
     isKeyQuestion: true,
     keyTarget: "yimin",

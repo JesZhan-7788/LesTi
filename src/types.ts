@@ -9,7 +9,6 @@ export interface Character {
     original: string;
     translation?: string;
   };
-  imageUrl?: string;
   coords: {
     burn: number; // 燃烧(+1) ↔ 克制(-1)
     boundary: number; // 边界(+1) ↔ 融合(-1)

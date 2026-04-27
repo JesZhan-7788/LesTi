@@ -7,10 +7,6 @@
 }
 
 @layer utilities {
-  .writing-vertical-lr {
-    writing-mode: vertical-lr;
-  }
-
   .font-serif-sc {
     font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
   }
