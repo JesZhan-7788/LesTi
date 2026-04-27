@@ -10,12 +10,10 @@ import { characters } from './data/characters';
 import { calculateResult } from './lib/scoring';
 import { Character } from './types';
 import { cn } from './lib/utils';
-import { ArrowRight, RotateCcw, Map as MapIcon, Eye } from 'lucide-react';
-import DevelopersMap from './components/DevelopersMap';
+import { ArrowRight, RotateCcw } from 'lucide-react';
 import { CharacterImage } from './components/CharacterImage';
-import { characters } from './data/characters';
 
-type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT' | 'DEV_MAP' | 'GALLERY';
+type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT';
 
 const prefetchedResultBackgrounds = new Set<string>();
 const resultBackgroundHref = (id: string) => `/images/${id}-bg.jpg`;
@@ -78,7 +76,7 @@ export default function App() {
   }, [hideBackground, result]);
 
   useEffect(() => {
-    if (hideBackground || screen === 'DEV_MAP') return;
+    if (hideBackground) return;
 
     const resultIds = characters.map((character) => character.id);
     let timeoutId: number | undefined;
@@ -166,65 +164,6 @@ export default function App() {
                 </div>
               </div>
             </motion.div>
-          )}
-
-          {screen === 'DEV_MAP' && (
-             <motion.div
-               key="devmap"
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
-               className="flex-1 flex flex-col bg-[#E5E7EB]"
-             >
-                <div className="p-4 bg-[#1D1D1F] text-white flex justify-between items-center shadow-md z-10">
-                   <h2 className="text-xs uppercase tracking-widest font-bold">Characters Distribution</h2>
-                   <button 
-                     onClick={() => setScreen('WELCOME')}
-                     className="text-[10px] uppercase tracking-widest border border-white/30 px-3 py-1 hover:bg-white/10"
-                   >
-                     Close
-                   </button>
-                </div>
-                <DevelopersMap />
-             </motion.div>
-          )}
-
-          {screen === 'GALLERY' && (
-             <motion.div
-               key="gallery"
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
-               className="flex-1 flex flex-col bg-[#F3F1EB] overflow-y-auto"
-             >
-                <div className="sticky top-0 p-4 bg-[#1D1D1F] text-white flex justify-between items-center shadow-md z-20">
-                   <h2 className="text-xs uppercase tracking-widest font-bold">Result Previews</h2>
-                   <button 
-                     onClick={() => setScreen('WELCOME')}
-                     className="text-[10px] uppercase tracking-widest border border-white/30 px-3 py-1 hover:bg-white/10"
-                   >
-                     Close
-                   </button>
-                </div>
-                <div className="grid grid-cols-2 gap-px bg-[#D1CEC5] p-px">
-                  {characters.map(c => (
-                    <button
-                      key={c.id}
-                      onClick={() => {
-                        setResult(c);
-                        setScreen('RESULT');
-                      }}
-                      className="bg-[#F3F1EB] p-4 text-left hover:bg-[#111] hover:text-[#F3F1EB] transition-colors group aspect-square flex flex-col justify-end relative overflow-hidden"
-                    >
-                      <img src={`/images/${c.id}-bg.png`} className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
-                      <div className="relative z-10">
-                        <p className="text-[9px] uppercase font-mono mb-1 mix-blend-multiply text-[#8C8B88] group-hover:text-white/60">{c.work}</p>
-                        <h3 className="font-serif text-lg leading-tight">{c.name}</h3>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-             </motion.div>
           )}
 
           {screen === 'QUIZ' && (
@@ -361,14 +300,13 @@ export default function App() {
                       </div>
                     )}
 
-                <div className="space-y-4 mb-8">
-                  <h3 className="text-[13px] font-serif tracking-[0.4em] uppercase text-[#8C8B88] text-glow-white">
-                    ANALYSIS
-                  </h3>
-                  <p className="text-[15px] sm:text-[16px] text-[#333] leading-[2.2] font-serif text-justify text-glow-white">
-                    {result.description}
-                  </p>
-                </div>
+                    <div className="flex flex-wrap gap-2 mb-10">
+                      {result.tags.map((tag, i) => (
+                        <span key={i} className="text-[10px] font-sans tracking-widest px-3 py-1.5 border border-[#D1CEC5] text-[#4A4946] uppercase bg-white/40">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
 
                     <p className="text-[10px] font-sans font-bold tracking-[0.4em] text-[#8C8B88] uppercase mb-4">Analysis</p>
                     <p className="text-[14px] text-[#4A4946] font-serif leading-[2.15] text-justify tracking-wide">
