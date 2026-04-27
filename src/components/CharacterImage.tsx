@@ -7,11 +7,24 @@ interface CharacterImageProps {
   style?: React.CSSProperties;
   onLoad?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
   hideInitially?: boolean;
+  loading?: 'eager' | 'lazy';
+  decoding?: 'async' | 'sync' | 'auto';
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 const EXTENSIONS = ['jpg', 'png', 'jpeg', 'webp'];
 
-export function CharacterImage({ id, alt, className, style, onLoad, hideInitially = false }: CharacterImageProps) {
+export function CharacterImage({
+  id,
+  alt,
+  className,
+  style,
+  onLoad,
+  hideInitially = false,
+  loading,
+  decoding,
+  fetchPriority,
+}: CharacterImageProps) {
   const [extIndex, setExtIndex] = useState(0);
   const [hasError, setHasError] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -27,6 +40,9 @@ export function CharacterImage({ id, alt, className, style, onLoad, hideInitiall
       src={`/images/${id}.${currentExt}`}
       alt={alt}
       className={className}
+      loading={loading}
+      decoding={decoding}
+      fetchPriority={fetchPriority}
       style={{
         ...style,
         display: (hideInitially && !loaded) ? 'none' : (style?.display || 'block')
