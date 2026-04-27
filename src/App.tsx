@@ -223,26 +223,45 @@ export default function App() {
               />
 
               <div className="relative z-10 flex h-full flex-col px-8 py-10">
-                <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  <h1 className="mb-6 text-[4rem] sm:text-[4.5rem] leading-[1] font-serif font-light text-[#111] tracking-tight italic">
-                    LesTi
-                  </h1>
-                  <p className="text-[10px] font-sans font-medium leading-[1.8] tracking-[0.24em] text-[#8C8B88] uppercase">
-                    FOR THE ONES<br />
-                    WHO LOVE WOMEN
+                <div className="flex flex-[0.86] flex-col items-center justify-center text-center">
+                  <p className="mb-5 font-serif-sc text-[0.95rem] leading-[1.8] tracking-[0.16em] text-[#8C8B88]">
+                    拉拉图鉴
                   </p>
+                  <h1 className="mb-5 text-[4rem] sm:text-[4.5rem] leading-[1] font-serif font-light text-[#111] tracking-tight uppercase not-italic">
+                    LESTI
+                  </h1>
                 </div>
-                <div className="pb-40">
+                <div className="-translate-y-12">
                   <button 
                     onClick={startQuiz}
-                    className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 w-full text-[11px] font-sans text-[#4A4946] uppercase tracking-[0.3em] transition-all hover:text-[#111] active:scale-[0.98]"
+                    className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 w-full text-[18px] font-serif-sc text-[#8C8B88] tracking-[0.1em] transition-all hover:text-[#111] active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center gap-4">
-                      UNVEIL
+                      开始测试
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500 ease-out" />
                     </span>
                   </button>
                 </div>
+                <p className="-mt-4 text-center text-[11px] leading-[1.8] text-[#8C8B88]">
+                  BY{' '}
+                  <a
+                    href="https://xhslink.com/m/9Oe7UaKX6LF"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-[#111] transition-colors"
+                  >
+                    77
+                  </a>
+                  {' & '}
+                  <a
+                    href="https://www.douban.com/people/136859616/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-[#111] transition-colors"
+                  >
+                    Jes
+                  </a>
+                </p>
               </div>
             </motion.div>
           )}
