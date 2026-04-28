@@ -223,7 +223,7 @@ export default function App() {
               />
 
               <div className="relative z-10 flex h-full flex-col px-8 py-10">
-                <div className="flex flex-[0.86] flex-col items-center justify-center text-center">
+                <div className="flex flex-[0.86] -translate-y-6 flex-col items-center justify-center text-center">
                   <p className="mb-5 font-serif-sc text-[0.95rem] leading-[1.8] tracking-[0.16em] text-[#8C8B88]">
                     拉拉图鉴
                   </p>
@@ -242,24 +242,25 @@ export default function App() {
                     </span>
                   </button>
                 </div>
-                <p className="absolute inset-x-8 bottom-10 text-center text-[11px] leading-[1.8] text-[#8C8B88]">
-                  BY{' '}
+                <p className="absolute inset-x-8 bottom-16 text-center font-serif-sc text-[0.95rem] leading-[1.8] text-[#8C8B88]">
+                  BY
+                  <span className="inline-block w-[0.5em]" aria-hidden="true" />
                   <a
                     href="https://xhslink.com/m/9Oe7UaKX6LF"
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-[#111] transition-colors"
+                    className="text-[#B28D3E] hover:text-[#8F6E2F] transition-colors"
                   >
-                    77
+                    @77
                   </a>
-                  {' & '}
+                  <span className="px-2">&amp;</span>
                   <a
                     href="https://www.douban.com/people/136859616/"
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-[#111] transition-colors"
+                    className="text-[#B28D3E] hover:text-[#8F6E2F] transition-colors"
                   >
-                    Jes
+                    @Jes
                   </a>
                 </p>
               </div>
