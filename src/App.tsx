@@ -242,7 +242,7 @@ export default function App() {
                     </span>
                   </button>
                 </div>
-                <p className="absolute inset-x-8 bottom-16 text-center font-serif-sc text-[0.95rem] leading-[1.8] text-[#8C8B88]">
+                <p className="absolute inset-x-8 bottom-[12vh] text-center font-serif-sc text-[0.95rem] leading-[1.8] text-[#8C8B88] sm:bottom-[9vh]">
                   BY
                   <span className="inline-block w-[0.5em]" aria-hidden="true" />
                   <a
