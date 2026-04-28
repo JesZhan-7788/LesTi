@@ -231,7 +231,7 @@ export default function App() {
                     LESTI
                   </h1>
                 </div>
-                <div className="-translate-y-12">
+                <div className="absolute inset-x-8 bottom-[30vh]">
                   <button 
                     onClick={startQuiz}
                     className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 w-full text-[18px] font-serif-sc text-[#8C8B88] tracking-[0.1em] transition-all hover:text-[#111] active:scale-[0.98]"
@@ -242,7 +242,7 @@ export default function App() {
                     </span>
                   </button>
                 </div>
-                <p className="-mt-4 text-center text-[11px] leading-[1.8] text-[#8C8B88]">
+                <p className="absolute inset-x-8 bottom-10 text-center text-[11px] leading-[1.8] text-[#8C8B88]">
                   BY{' '}
                   <a
                     href="https://xhslink.com/m/9Oe7UaKX6LF"
