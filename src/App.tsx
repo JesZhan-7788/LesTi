@@ -10,7 +10,7 @@ import { characters } from './data/characters';
 import { calculateResult } from './lib/scoring';
 import { Character } from './types';
 import { cn } from './lib/utils';
-import { RotateCcw } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { CharacterImage } from './components/CharacterImage';
 
 type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT';
@@ -62,6 +62,16 @@ export default function App() {
       setResult(charResult);
       setScreen('RESULT');
     }
+  };
+
+  const handleGoBack = () => {
+    if (currentQIndex === 0) {
+      setScreen('WELCOME');
+      setAnswers({});
+      return;
+    }
+
+    setCurrentQIndex((prev) => prev - 1);
   };
 
   const currentQ = questions[currentQIndex];
@@ -280,6 +290,16 @@ export default function App() {
                   transition={{ duration: 0.8, ease: "easeOut" }}
                 />
               </div>
+
+              {currentQIndex > 0 && (
+                <button
+                  onClick={handleGoBack}
+                  className="absolute left-6 top-6 z-20 inline-flex items-center gap-2 px-1 py-1 text-[11px] font-sans tracking-[0.2em] text-[#8C8B88] transition-all duration-300 hover:text-[#111] active:scale-[0.98]"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  返回
+                </button>
+              )}
 
               <div className="relative z-10 flex h-full flex-col justify-center px-8 py-16">
               <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
