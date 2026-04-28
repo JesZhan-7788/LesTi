@@ -10,7 +10,7 @@ import { characters } from './data/characters';
 import { calculateResult } from './lib/scoring';
 import { Character } from './types';
 import { cn } from './lib/utils';
-import { ArrowRight, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { CharacterImage } from './components/CharacterImage';
 
 type ScreenState = 'WELCOME' | 'QUIZ' | 'RESULT';
@@ -160,27 +160,17 @@ export default function App() {
   };
 
   const handleShare = async () => {
-    const shareUrl = "https://lesti.pages.dev/";
+    const shareUrl = 'https://lesti.pages.dev/';
 
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'LESTI',
-          text: '测测你是哪位女同角色',
-          url: shareUrl,
-        });
-        showToast('分享面板已打开');
-        return;
-      }
-
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareUrl);
-        showToast('网址已复制，去粘贴分享吧');
+        showToast('已拷贝链接，去分享吧');
         return;
       }
 
       if (fallbackCopyText(shareUrl)) {
-        showToast('网址已复制，去粘贴分享吧');
+        showToast('已拷贝链接，去分享吧');
         return;
       }
 
@@ -231,15 +221,12 @@ export default function App() {
                     LESTI
                   </h1>
                 </div>
-                <div className="absolute inset-x-8 bottom-[30vh]">
+                <div className="absolute inset-x-8 bottom-[30vh] flex justify-center">
                   <button 
                     onClick={startQuiz}
-                    className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 w-full text-[18px] font-serif-sc text-[#8C8B88] tracking-[0.1em] transition-all hover:text-[#111] active:scale-[0.98]"
+                    className="group relative inline-flex w-[220px] items-center justify-center border border-[#D1CEC5] bg-white/40 px-6 py-3 leading-none text-[18px] font-serif-sc tracking-[0.08em] text-[#8C8B88] transition-all duration-300 ease-out hover:border-[#111] hover:bg-[#111] hover:text-[#F3F1EB] active:scale-[0.98] active:border-[#111] active:bg-[#111] active:text-[#F3F1EB]"
                   >
-                    <span className="relative z-10 flex items-center gap-4">
-                      开始测试
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500 ease-out" />
-                    </span>
+                    <span className="relative z-10">开始测试</span>
                   </button>
                 </div>
                 <p className="absolute inset-x-8 bottom-[12vh] text-center font-serif-sc text-[0.95rem] leading-[1.8] text-[#8C8B88] sm:bottom-[9vh]">
@@ -249,7 +236,7 @@ export default function App() {
                     href="https://xhslink.com/m/9Oe7UaKX6LF"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[#B28D3E] hover:text-[#8F6E2F] transition-colors"
+                    className="font-semibold text-[#B28D3E] hover:text-[#8F6E2F] transition-colors"
                   >
                     @77
                   </a>
@@ -258,7 +245,7 @@ export default function App() {
                     href="https://www.douban.com/people/136859616/"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[#B28D3E] hover:text-[#8F6E2F] transition-colors"
+                    className="font-semibold text-[#B28D3E] hover:text-[#8F6E2F] transition-colors"
                   >
                     @Jes
                   </a>
