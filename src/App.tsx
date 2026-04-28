@@ -31,6 +31,11 @@ const warmImage = (href: string, fetchPriority: 'high' | 'low' | 'auto' = 'auto'
     img.src = href;
   });
 
+const formatQuotedOriginal = (text: string) => {
+  const normalized = text.trim().replace(/^[“”"「」『』«»]+|[“”"「」『』«»]+$/g, '');
+  return `“${normalized}”`;
+};
+
 export default function App() {
   const previewParams = new URLSearchParams(window.location.search);
   const previewCharacterId = previewParams.get('preview');
@@ -397,7 +402,7 @@ export default function App() {
                               ? "text-[22px] sm:text-[26px] font-serif italic"
                               : "text-[22px] sm:text-[26px] font-serif-sc font-normal not-italic tracking-[0.03em]"
                           )}>
-                            {result.quote.original}
+                            {formatQuotedOriginal(result.quote.original)}
                           </p>
                           {result.quote.translation && (
                             <p className="text-[15px] text-[#7A7771] font-serif leading-[1.95]">
